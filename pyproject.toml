@@ -15,6 +15,14 @@ regex = "^2023.12.25"
 
 [tool.poetry.dev-dependencies]
 
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+ruff = "^0.3.7"
+mdformat-gfm = "^0.3.6"
+mdformat-frontmatter = "^2.0.8"
+mdformat-footnote = "^0.1.1"
+mypy = "^1.9.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
