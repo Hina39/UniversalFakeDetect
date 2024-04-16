@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gpu"
+name = "universalfakedetect"
 version = "0.1.0"
 description = ""
 authors = ["Hina39 <hiinyan3939@gmail.com>"]
