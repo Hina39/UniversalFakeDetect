@@ -6,7 +6,7 @@ import torch
 import torchvision.transforms as transforms
 import torch.utils.data
 import numpy as np
-from sklearn.metrics import average_precision_score, precision_recall_curve, accuracy_score
+from sklearn.metrics import average_precision_score, accuracy_score
 from torch.utils.data import Dataset
 import sys
 from models import get_model
@@ -138,6 +138,7 @@ def validate(model, loader, find_thres=False):
 
 
 def recursively_read(rootdir, must_contain, exts=["png", "jpg", "JPEG", "jpeg", "bmp"]):
+    print(f"rootdir: {rootdir}")
     out = [] 
     for r, d, f in os.walk(rootdir):
         for file in f:
@@ -167,7 +168,6 @@ class RealFakeDataset(Dataset):
                         arch,
                         jpeg_quality=None,
                         gaussian_sigma=None):
-
         assert data_mode in ["wang2020", "ours"]
         self.jpeg_quality = jpeg_quality
         self.gaussian_sigma = gaussian_sigma
@@ -183,6 +183,8 @@ class RealFakeDataset(Dataset):
                 real_list += real_l
                 fake_list += fake_l
 
+        print(f"real_list: {len(real_list)}")
+        print(f"fake_list: {len(fake_list)}")
         self.total_list = real_list + fake_list
 
 
@@ -204,6 +206,8 @@ class RealFakeDataset(Dataset):
 
     def read_path(self, real_path, fake_path, data_mode, max_sample):
 
+        # 'wang2020'：0_realと1_fakeを含むディレクトリ
+        #　'ours'：それ以外のディレクトリ
         if data_mode == 'wang2020':
             real_list = get_list(real_path, must_contain='0_real')
             fake_list = get_list(fake_path, must_contain='1_fake')
@@ -253,12 +257,13 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--real_path', type=str, default=None, help='dir name or a pickle')
-    parser.add_argument('--fake_path', type=str, default=None, help='dir name or a pickle')
-    parser.add_argument('--data_mode', type=str, default=None, help='wang2020 or ours')
+    parser.add_argument('--real_path', type=str, default="datasets/test/biggan/0_real", help='dir name or a pickle')
+    parser.add_argument('--fake_path', type=str, default="datasets/test/biggan/1_fake", help='dir name or a pickle')
+    parser.add_argument('--data_mode', type=str, default="wang2020", help='wang2020 or ours')
+    parser.add_argument('--key', type=str, default="biggan", help='')
     parser.add_argument('--max_sample', type=int, default=1000, help='only check this number of images for both fake/real')
 
-    parser.add_argument('--arch', type=str, default='res50')
+    parser.add_argument('--arch', type=str, default='CLIP:ViT-L/14')
     parser.add_argument('--ckpt', type=str, default='./pretrained_weights/fc_weights.pth')
 
     parser.add_argument('--result_folder', type=str, default='result', help='')
@@ -283,9 +288,9 @@ if __name__ == '__main__':
     model.cuda()
 
     if (opt.real_path == None) or (opt.fake_path == None) or (opt.data_mode == None):
-        dataset_paths = DATASET_PATHS
+        dataset_paths = DATASET_PATHS  
     else:
-        dataset_paths = [ dict(real_path=opt.real_path, fake_path=opt.fake_path, data_mode=opt.data_mode) ]
+        dataset_paths = [ dict(real_path=opt.real_path, fake_path=opt.fake_path, data_mode=opt.data_mode, key=opt.key) ]
 
 
 
