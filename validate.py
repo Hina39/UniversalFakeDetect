@@ -288,7 +288,7 @@ if __name__ == '__main__':
     model.cuda()
 
     if (opt.real_path == None) or (opt.fake_path == None) or (opt.data_mode == None):
-        dataset_paths = DATASET_PATHS  
+        dataset_paths = DATASET_PATHS
     else:
         dataset_paths = [ dict(real_path=opt.real_path, fake_path=opt.fake_path, data_mode=opt.data_mode, key=opt.key) ]
 
