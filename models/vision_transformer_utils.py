@@ -56,7 +56,10 @@ def make_grid(
     """
     if not torch.jit.is_scripting() and not torch.jit.is_tracing():
         _log_api_usage_once(make_grid)
-    if not (torch.is_tensor(tensor) or (isinstance(tensor, list) and all(torch.is_tensor(t) for t in tensor))):
+    if not (
+        torch.is_tensor(tensor)
+        or (isinstance(tensor, list) and all(torch.is_tensor(t) for t in tensor))
+    ):
         raise TypeError(f"tensor or list of tensors expected, got {type(tensor)}")
 
     if "range" in kwargs.keys():
@@ -113,7 +116,9 @@ def make_grid(
     ymaps = int(math.ceil(float(nmaps) / xmaps))
     height, width = int(tensor.size(2) + padding), int(tensor.size(3) + padding)
     num_channels = tensor.size(1)
-    grid = tensor.new_full((num_channels, height * ymaps + padding, width * xmaps + padding), pad_value)
+    grid = tensor.new_full(
+        (num_channels, height * ymaps + padding, width * xmaps + padding), pad_value
+    )
     k = 0
     for y in range(ymaps):
         for x in range(xmaps):
@@ -123,7 +128,9 @@ def make_grid(
             # https://pytorch.org/docs/stable/tensors.html#torch.Tensor.copy_
             grid.narrow(1, y * height + padding, height - padding).narrow(  # type: ignore[attr-defined]
                 2, x * width + padding, width - padding
-            ).copy_(tensor[k])
+            ).copy_(
+                tensor[k]
+            )
             k = k + 1
     return grid
 
@@ -151,7 +158,14 @@ def save_image(
         _log_api_usage_once(save_image)
     grid = make_grid(tensor, **kwargs)
     # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
-    ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+    ndarr = (
+        grid.mul(255)
+        .add_(0.5)
+        .clamp_(0, 255)
+        .permute(1, 2, 0)
+        .to("cpu", torch.uint8)
+        .numpy()
+    )
     im = Image.fromarray(ndarr)
     im.save(fp, format=format)
 
@@ -161,13 +175,14 @@ def draw_bounding_boxes(
     image: torch.Tensor,
     boxes: torch.Tensor,
     labels: Optional[List[str]] = None,
-    colors: Optional[Union[List[Union[str, Tuple[int, int, int]]], str, Tuple[int, int, int]]] = None,
+    colors: Optional[
+        Union[List[Union[str, Tuple[int, int, int]]], str, Tuple[int, int, int]]
+    ] = None,
     fill: Optional[bool] = False,
     width: int = 1,
     font: Optional[str] = None,
     font_size: int = 10,
 ) -> torch.Tensor:
-
     """
     Draws bounding boxes on given image.
     The values of the input image should be uint8 between 0 and 255.
@@ -218,11 +233,16 @@ def draw_bounding_boxes(
         colors = _generate_color_palette(num_boxes)
     elif isinstance(colors, list):
         if len(colors) < num_boxes:
-            raise ValueError(f"Number of colors ({len(colors)}) is less than number of boxes ({num_boxes}). ")
+            raise ValueError(
+                f"Number of colors ({len(colors)}) is less than number of boxes ({num_boxes}). "
+            )
     else:  # colors specifies a single color for all boxes
         colors = [colors] * num_boxes
 
-    colors = [(ImageColor.getrgb(color) if isinstance(color, str) else color) for color in colors]
+    colors = [
+        (ImageColor.getrgb(color) if isinstance(color, str) else color)
+        for color in colors
+    ]
 
     # Handle Grayscale images
     if image.size(0) == 1:
@@ -237,7 +257,11 @@ def draw_bounding_boxes(
     else:
         draw = ImageDraw.Draw(img_to_draw)
 
-    txt_font = ImageFont.load_default() if font is None else ImageFont.truetype(font=font, size=font_size)
+    txt_font = (
+        ImageFont.load_default()
+        if font is None
+        else ImageFont.truetype(font=font, size=font_size)
+    )
 
     for bbox, color, label in zip(img_boxes, colors, labels):  # type: ignore[arg-type]
         if fill:
@@ -248,9 +272,13 @@ def draw_bounding_boxes(
 
         if label is not None:
             margin = width + 1
-            draw.text((bbox[0] + margin, bbox[1] + margin), label, fill=color, font=txt_font)
+            draw.text(
+                (bbox[0] + margin, bbox[1] + margin), label, fill=color, font=txt_font
+            )
 
-    return torch.from_numpy(np.array(img_to_draw)).permute(2, 0, 1).to(dtype=torch.uint8)
+    return (
+        torch.from_numpy(np.array(img_to_draw)).permute(2, 0, 1).to(dtype=torch.uint8)
+    )
 
 
 @torch.no_grad()
@@ -258,9 +286,10 @@ def draw_segmentation_masks(
     image: torch.Tensor,
     masks: torch.Tensor,
     alpha: float = 0.8,
-    colors: Optional[Union[List[Union[str, Tuple[int, int, int]]], str, Tuple[int, int, int]]] = None,
+    colors: Optional[
+        Union[List[Union[str, Tuple[int, int, int]]], str, Tuple[int, int, int]]
+    ] = None,
 ) -> torch.Tensor:
-
     """
     Draws segmentation masks on given RGB image.
     The values of the input image should be uint8 between 0 and 255.
@@ -300,7 +329,9 @@ def draw_segmentation_masks(
 
     num_masks = masks.size()[0]
     if colors is not None and num_masks > len(colors):
-        raise ValueError(f"There are more masks ({num_masks}) than colors ({len(colors)})")
+        raise ValueError(
+            f"There are more masks ({num_masks}) than colors ({len(colors)})"
+        )
 
     if colors is None:
         colors = _generate_color_palette(num_masks)
@@ -310,7 +341,9 @@ def draw_segmentation_masks(
     if not isinstance(colors[0], (tuple, str)):
         raise ValueError("colors must be a tuple or a string, or a list thereof")
     if isinstance(colors[0], tuple) and len(colors[0]) != 3:
-        raise ValueError("It seems that you passed a tuple of colors instead of a list of colors")
+        raise ValueError(
+            "It seems that you passed a tuple of colors instead of a list of colors"
+        )
 
     out_dtype = torch.uint8
 
@@ -338,7 +371,6 @@ def draw_keypoints(
     radius: int = 2,
     width: int = 3,
 ) -> torch.Tensor:
-
     """
     Draws Keypoints on given RGB image.
     The values of the input image should be uint8 between 0 and 255.
@@ -398,13 +430,14 @@ def draw_keypoints(
                     width=width,
                 )
 
-    return torch.from_numpy(np.array(img_to_draw)).permute(2, 0, 1).to(dtype=torch.uint8)
+    return (
+        torch.from_numpy(np.array(img_to_draw)).permute(2, 0, 1).to(dtype=torch.uint8)
+    )
 
 
 # Flow visualization code adapted from https://github.com/tomrunia/OpticalFlow_Visualization
 @torch.no_grad()
 def flow_to_image(flow: torch.Tensor) -> torch.Tensor:
-
     """
     Converts a flow to an RGB image.
 
@@ -424,9 +457,11 @@ def flow_to_image(flow: torch.Tensor) -> torch.Tensor:
         flow = flow[None]  # Add batch dim
 
     if flow.ndim != 4 or flow.shape[1] != 2:
-        raise ValueError(f"Input flow should have shape (2, H, W) or (N, 2, H, W), got {orig_shape}.")
+        raise ValueError(
+            f"Input flow should have shape (2, H, W) or (N, 2, H, W), got {orig_shape}."
+        )
 
-    max_norm = torch.sum(flow ** 2, dim=1).sqrt().max()
+    max_norm = torch.sum(flow**2, dim=1).sqrt().max()
     epsilon = torch.finfo((flow).dtype).eps
     normalized_flow = flow / (max_norm + epsilon)
     img = _normalized_flow_to_image(normalized_flow)
@@ -438,7 +473,6 @@ def flow_to_image(flow: torch.Tensor) -> torch.Tensor:
 
 @torch.no_grad()
 def _normalized_flow_to_image(normalized_flow: torch.Tensor) -> torch.Tensor:
-
     """
     Converts a batch of normalized flow to an RGB image.
 
@@ -453,8 +487,11 @@ def _normalized_flow_to_image(normalized_flow: torch.Tensor) -> torch.Tensor:
     flow_image = torch.zeros((N, 3, H, W), dtype=torch.uint8, device=device)
     colorwheel = _make_colorwheel().to(device)  # shape [55x3]
     num_cols = colorwheel.shape[0]
-    norm = torch.sum(normalized_flow ** 2, dim=1).sqrt()
-    a = torch.atan2(-normalized_flow[:, 1, :, :], -normalized_flow[:, 0, :, :]) / torch.pi
+    norm = torch.sum(normalized_flow**2, dim=1).sqrt()
+    a = (
+        torch.atan2(-normalized_flow[:, 1, :, :], -normalized_flow[:, 0, :, :])
+        / torch.pi
+    )
     fk = (a + 1) / 2 * (num_cols - 1)
     k0 = torch.floor(fk).to(torch.long)
     k1 = k0 + 1
@@ -519,12 +556,11 @@ def _make_colorwheel() -> torch.Tensor:
 
 
 def _generate_color_palette(num_objects: int):
-    palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
+    palette = torch.tensor([2**25 - 1, 2**15 - 1, 2**21 - 1])
     return [tuple((i * palette) % 255) for i in range(num_objects)]
 
 
 def _log_api_usage_once(obj: Any) -> None:
-
     """
     Logs API usage(module and name) within an organization.
     In a large ecosystem, it's often useful to track the PyTorch and
