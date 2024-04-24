@@ -1,8 +1,8 @@
 datasets/*
 result/*
 diffusion_datasets/*
-models/*
 elsa_data/*
 checkpoints/*
 ffhq_test/*
 __pycache__/*
+models/__pycache__/*
