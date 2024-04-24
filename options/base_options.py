@@ -1,6 +1,8 @@
 import argparse
 import os
-import util
+
+# import util
+import pathlib
 import torch
 
 
@@ -144,7 +146,8 @@ class BaseOptions:
 
         # save to the disk
         expr_dir = os.path.join(opt.checkpoints_dir, opt.name)
-        util.mkdirs(expr_dir)
+        # util.mkdirs(expr_dir)
+        pathlib.Path(expr_dir).mkdir(parents=True, exist_ok=True)
         file_name = os.path.join(expr_dir, "opt.txt")
         with open(file_name, "wt") as opt_file:
             opt_file.write(message)
