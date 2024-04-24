@@ -62,9 +62,16 @@ if __name__ == "__main__":
                 train_writer.add_scalar("loss", model.loss, model.total_steps)
                 print("Iter time: ", ((time.time() - start_time) / model.total_steps))
 
-            if (
-                model.total_steps in [10, 30, 50, 100, 1000, 5000, 10000] and False
-            ):  # save models at these iters
+            if model.total_steps in [
+                1,
+                10,
+                30,
+                50,
+                100,
+                1000,
+                5000,
+                10000,
+            ]:  # save models at these iters
                 model.save_networks("model_iters_%s.pth" % model.total_steps)
 
         if epoch % opt.save_epoch_freq == 0:

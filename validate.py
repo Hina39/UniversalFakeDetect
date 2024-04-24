@@ -41,6 +41,9 @@ def find_best_threshold(y_true, y_pred):
 
     best_acc = 0
     best_thres = 0
+    # もし本当のラベルの最大予測値が偽のラベルの最小予測値以下であれば（つまり，予測値が完全に分離可能であれば）
+    # この関数はこれら2つの値の平均をしきい値として返す．
+    # 予測が完全に分離可能でない場合，関数は best_acc （最高の精度）と best_thres （最高のしきい値）を0に初期化する．
     for thres in y_pred:
         temp = deepcopy(y_pred)
         temp[temp >= thres] = 1
@@ -78,6 +81,7 @@ def calculate_acc(y_true, y_pred, thres):
     r_acc = accuracy_score(y_true[y_true == 0], y_pred[y_true == 0] > thres)
     f_acc = accuracy_score(y_true[y_true == 1], y_pred[y_true == 1] > thres)
     acc = accuracy_score(y_true, y_pred > thres)
+    # r_acc:0である真のラベルの予測精度 f_acc:1である真のラベルの予測精度　# acc:全体の予測精度
     return r_acc, f_acc, acc
 
 
@@ -103,6 +107,7 @@ def validate(model, loader, find_thres=False):
     ap = average_precision_score(y_true, y_pred)
 
     # Acc based on 0.5
+    # r_acc0:0である真のラベルの予測精度 f_acc0:1である真のラベルの予測精度　# acc0:全体の予測精度
     r_acc0, f_acc0, acc0 = calculate_acc(y_true, y_pred, 0.5)
     if not find_thres:
         return ap, r_acc0, f_acc0, acc0
@@ -237,13 +242,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--real_path",
         type=str,
-        default="datasets/test/biggan/0_real",
+        default="datasets/test/biggan",
         help="dir name or a pickle",
     )
     parser.add_argument(
         "--fake_path",
         type=str,
-        default="datasets/test/biggan/1_fake",
+        default="datasets/test/biggan",
         help="dir name or a pickle",
     )
     parser.add_argument(
@@ -330,10 +335,23 @@ if __name__ == "__main__":
             f.write(
                 dataset_path["key"]
                 + ": "
+                + "r_acc0:"
                 + str(round(r_acc0 * 100, 2))
                 + "  "
+                + "f_acc0:"
                 + str(round(f_acc0 * 100, 2))
                 + "  "
+                + "acc0:"
                 + str(round(acc0 * 100, 2))
                 + "\n"
+                + "r_acc1:"
+                + str(round(r_acc1 * 100, 2))
+                + "  "
+                + "f_acc1:"
+                + str(round(f_acc1 * 100, 2))
+                + "  "
+                + "acc1:"
+                + str(round(acc1 * 100, 2))
+                + "\n"
+                + str(best_thres)
             )
