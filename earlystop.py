@@ -1,3 +1,6 @@
+# https://github.com/PeterWang512/CNNDetection/blob/master/earlystop.py
+# 先行研究のコードからもってきた CNN-generated images are surprisingly easy to spot...for now
+
 import numpy as np
 
 
