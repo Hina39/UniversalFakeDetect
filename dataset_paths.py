@@ -113,4 +113,16 @@ DATASET_PATHS = [
         data_mode="wang2020",
         key="dalle",
     ),
+    dict(
+        real_path="elsa_data/0_real",
+        fake_path="elsa_data/1_fake",
+        data_mode="wang2020",
+        key="elsa",
+    ),
+    dict(
+        real_path="ffhq_test",
+        fake_path="ffhq_test",
+        data_mode="wang2020",
+        key="ffhq",
+    ),
 ]
