@@ -13,16 +13,3 @@ class DinoModel(nn.Module):
         if return_feature:
             return features
         return self.fc(features)
-
-
-# dinov2_vits14_lc = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14_lc')
-#  (linear_head): Linear(in_features=1920, out_features=1000, bias=True)
-
-# dinov2_vitb14_lc = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitb14_lc')
-# (linear_head): Linear(in_features=3840, out_features=1000, bias=True)
-
-# dinov2_vitl14_lc = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitl14_lc')
-# (linear_head): Linear(in_features=5120, out_features=1000, bias=True)
-
-# dinov2_vitg14_lc = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitg14_lc')
-#  (linear_head): Linear(in_features=7680, out_features=1000, bias=True)
