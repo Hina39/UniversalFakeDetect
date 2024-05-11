@@ -291,7 +291,15 @@ if __name__ == "__main__":
 
     model = get_model(opt.arch)
     state_dict = torch.load(opt.ckpt, map_location="cpu")
-    model.fc.load_state_dict(state_dict)
+    if opt.arch == "Meru:Vit-S":
+        model.load_state_dict(state_dict["model"])
+    elif opt.arch == "Dino:Vit-B/14":
+        model.load_state_dict(state_dict["model"])
+    elif opt.arch == "CLIP:ViT-L/14":
+        model.fc.load_state_dict(state_dict)
+    else:
+        raise ValueError()
+
     print("Model loaded..")
     model.eval()
     model.cuda()
