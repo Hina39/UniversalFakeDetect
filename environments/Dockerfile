@@ -6,7 +6,7 @@ ARG USER_NAME=challenger
 ARG GROUP_NAME=challengers
 ARG UID=1000
 ARG GID=1000
-ARG PYTHON_VERSION=3.8
+ARG PYTHON_VERSION
 ARG APPLICATION_DIRECTORY=/home/${USER_NAME}/${PROJECT_NAME}
 ARG RUN_POETRY_INSTALL_AT_BUILD_TIME="false"
 
@@ -17,7 +17,17 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 
 RUN apt update -y && apt install --no-install-recommends -y software-properties-common \
     git curl make ssh openssh-client screen build-essential python3-dev libopencv-dev \
-    python${PYTHON_VERSION} python3-pip python-is-python3 
+    python3-pip python-is-python3 
+
+# deadsnakes PPAの追加とPython 3.9のインストール
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt update -y && \
+    apt install --no-install-recommends -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-distutils && \
+    python${PYTHON_VERSION} -m pip install --upgrade pip
+
+# update-alternativesを使ってデフォルトのPythonをPython 3.9に設定
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
 
 RUN python3 -m pip install --upgrade pip setuptools requests \
     && python3 -m pip install poetry
