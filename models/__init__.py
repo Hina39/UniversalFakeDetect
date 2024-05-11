@@ -1,6 +1,7 @@
 from .clip_models import CLIPModel
 from .imagenet_models import ImagenetModel
 from .dinov2_models import DinoModel
+from .meru_models import MeruModel
 
 
 VALID_NAMES = [
@@ -27,6 +28,7 @@ VALID_NAMES = [
     "CLIP:ViT-B/16",
     "CLIP:ViT-L/14",
     "CLIP:ViT-L/14@336px",
+    "Meru:Vit-S",
     "Dino:Vit-B/14",
 ]
 
@@ -39,5 +41,7 @@ def get_model(name):
         return CLIPModel(name[5:])
     elif name.startswith("Dino:"):
         return DinoModel(name[5:])
+    elif name.startswith("Meru:"):
+        return MeruModel(name[5:])
     else:
         assert False
