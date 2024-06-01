@@ -48,7 +48,8 @@ class RealFakeDataset(Dataset):
             real_list = get_list(os.path.join(opt.real_list_path, pickle_name))
             fake_list = get_list(os.path.join(opt.fake_list_path, pickle_name))
         elif opt.data_mode == "wang2020":
-            temp = "train/progan" if opt.data_label == "train" else "test/progan"
+            # temp = "train/progan" if opt.data_label == "train" else "test/progan"
+            temp = "train/" if opt.data_label == "train" else "train/"
             real_list = get_list(
                 os.path.join(opt.wang2020_data_path, temp), must_contain="0_real"
             )
