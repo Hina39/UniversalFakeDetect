@@ -9,3 +9,4 @@ models/__pycache__/*
 *.pyc
 *.txt
 *.pth
+original_datasets/*
