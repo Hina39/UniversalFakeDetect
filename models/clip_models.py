@@ -2,7 +2,7 @@ from .clip import clip
 import torch.nn as nn
 
 
-CHANNELS = {"RN50": 1024, "ViT-L/14": 768}
+CHANNELS = {"RN50": 1024, "ViT-L/14": 768, "ViT-B/16": 512}
 
 
 class CLIPModel(nn.Module):
