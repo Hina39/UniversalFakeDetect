@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from networks.base_model import BaseModel
 from models import get_model
+from models.ensemble_models import EnsembleModel
 
 
 class Trainer(BaseModel):
@@ -47,6 +48,65 @@ class Trainer(BaseModel):
         self.loss_fn = nn.BCEWithLogitsLoss()
 
         self.model.to(opt.gpu_ids[0])
+
+    def adjust_learning_rate(self, min_lr=1e-6):
+        for param_group in self.optimizer.param_groups:
+            param_group["lr"] /= 10.0
+            if param_group["lr"] < min_lr:
+                return False
+        return True
+
+    def set_input(self, input):
+        self.input = input[0].to(self.device)
+        self.label = input[1].to(self.device).float()
+
+    def forward(self):
+        self.output = self.model(self.input)
+        self.output = self.output.view(-1).unsqueeze(1)
+
+    def get_loss(self):
+        return self.loss_fn(self.output.squeeze(1), self.label)
+
+    def optimize_parameters(self):
+        self.forward()
+        self.loss = self.loss_fn(self.output.squeeze(1), self.label)
+        self.optimizer.zero_grad()
+        self.loss.backward()
+        self.optimizer.step()
+
+
+class EnsembleTrainer(BaseModel):
+    def name(self):
+        return "EnsembleTrainer"
+
+    def __init__(self, opt):
+        super(EnsembleTrainer, self).__init__(opt)
+        self.opt = opt
+        models = [get_model(arch) for arch in opt.arch]
+        # get_model(arch)でかえってくるのはCLIPModelなどのクラス。
+        self.model = EnsembleModel(models, fix_backbone=opt.fix_backbone)
+        if opt.optim == "adam":
+            self.optimizer = torch.optim.AdamW(
+                self.model.fc.parameters(),
+                lr=opt.lr,
+                betas=(opt.beta1, 0.999),
+                weight_decay=opt.weight_decay,
+            )
+        elif opt.optim == "sgd":
+            self.optimizer = torch.optim.SGD(
+                self.model.fc.parameters(),
+                lr=opt.lr,
+                momentum=0.0,
+                weight_decay=opt.weight_decay,
+            )
+        else:
+            raise ValueError("optim should be [adam, sgd]")
+
+        self.loss_fn = nn.BCEWithLogitsLoss()
+
+        self.model.to(opt.gpu_ids[0])
+        for name, param in self.model.named_parameters():
+            print(name, param.device)
 
     def adjust_learning_rate(self, min_lr=1e-6):
         for param_group in self.optimizer.param_groups:

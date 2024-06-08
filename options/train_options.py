@@ -55,6 +55,10 @@ class TrainOptions(BaseOptions):
         parser.add_argument(
             "--lr", type=float, default=0.0001, help="initial learning rate for adam"
         )
-
+        parser.add_argument(
+            "--ensemble",
+            action="store_true",
+            help="複数のモデルをアンサンブルして学習するかどうか",
+        )
         self.isTrain = True
         return parser
