@@ -105,8 +105,6 @@ class EnsembleTrainer(BaseModel):
         self.loss_fn = nn.BCEWithLogitsLoss()
 
         self.model.to(opt.gpu_ids[0])
-        for name, param in self.model.named_parameters():
-            print(name, param.device)
 
     def adjust_learning_rate(self, min_lr=1e-6):
         for param_group in self.optimizer.param_groups:
