@@ -48,7 +48,10 @@ class RealFakeDataset(Dataset):
             real_list = get_list(os.path.join(opt.real_list_path, pickle_name))
             fake_list = get_list(os.path.join(opt.fake_list_path, pickle_name))
         elif opt.data_mode == "wang2020":
+            # progan
             temp = "train/progan" if opt.data_label == "train" else "test/progan"
+            # 以下はgigaganのとき
+            # temp = "train/" if opt.data_label == "train" else "test/"
             real_list = get_list(
                 os.path.join(opt.wang2020_data_path, temp), must_contain="0_real"
             )
@@ -92,7 +95,12 @@ class RealFakeDataset(Dataset):
         else:
             rz_func = transforms.Lambda(lambda img: custom_resize(img, opt))
 
-        stat_from = "imagenet" if opt.arch.lower().startswith("imagenet") else "clip"
+        # stat_from = "imagenet" if opt.arch.lower().startswith("imagenet") else "clip"
+        stat_from = (
+            "imagenet"
+            if any(arch.lower().startswith("imagenet") for arch in opt.arch)
+            else "clip"
+        )
 
         print("mean and std stats are from: ", stat_from)
         if "2b" not in opt.arch:

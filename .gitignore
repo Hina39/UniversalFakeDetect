@@ -9,3 +9,9 @@ models/__pycache__/*
 *.pyc
 *.txt
 *.pth
+original_datasets/*
+datasets_gigagan/*
+elsa_data_deepfloyd/*
+outputs/*
+gigagan/*
+gigagan_uncond/*
