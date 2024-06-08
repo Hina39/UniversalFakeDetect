@@ -41,11 +41,11 @@ class MeruModel(nn.Module):
             learn_curv=True,
             entail_weight=0.2,
         )
-        # 今回はModel: MERU ViT-smallを使うことにする
-        model.visual.arch = "vit_small_mocov3_patch16_224"
+        model.visual.arch = "vit_base_patch16_224"
+        # model.visual.arch = "vit_small_mocov3_patch16_224"
         device = device or torch.cuda.current_device()
         model = instantiate(model).to(device).eval()
-        CheckpointManager(model=model).load("pretrained_weights/meru_vit_s.pth")
+        CheckpointManager(model=model).load("pretrained_weights/meru_vit_b.pth")
         self.model = model
         # MERUにはない、新しいFC層をつける
         self.fc = nn.Linear(channels, num_classes)
