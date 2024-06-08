@@ -291,12 +291,16 @@ if __name__ == "__main__":
 
     model = get_model(opt.arch)
     state_dict = torch.load(opt.ckpt, map_location="cpu")
-    if opt.arch == "Meru:Vit-S":
+    if opt.arch == "Meru:Vit-B":
         model.load_state_dict(state_dict["model"])
     elif opt.arch == "Dino:Vit-B/14":
         model.load_state_dict(state_dict["model"])
     elif opt.arch == "CLIP:ViT-L/14":
-        model.fc.load_state_dict(state_dict)
+        # 論文の学習済みの重みを使用する場合
+        # model.fc.load_state_dict(state_dict)
+        model.load_state_dict(state_dict["model"])
+    elif opt.arch == "Deit:ViT-B/16":
+        model.load_state_dict(state_dict["model"])
     else:
         raise ValueError()
 
