@@ -5,7 +5,7 @@ from tensorboardX import SummaryWriter
 from validate import validate
 from data import create_dataloader
 from earlystop import EarlyStopping
-from networks.trainer import Trainer
+from networks.trainer import Trainer, EnsembleTrainer
 from options.train_options import TrainOptions
 
 
@@ -34,7 +34,10 @@ if __name__ == "__main__":
     opt = TrainOptions().parse()
     val_opt = get_val_opt()
 
-    model = Trainer(opt)
+    if opt.ensemble:
+        model = EnsembleTrainer(opt)
+    else:
+        model = Trainer(opt)
 
     data_loader = create_dataloader(opt)
     val_loader = create_dataloader(val_opt)
