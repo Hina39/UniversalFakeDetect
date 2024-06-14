@@ -12,7 +12,7 @@ class OpenCLIPModel(nn.Module):
         channels=512,
     ):
         super(OpenCLIPModel, self).__init__()
-        model, _, preprocess = open_clip.create_model_and_transforms(
+        model, _, _ = open_clip.create_model_and_transforms(
             model_name, pretrained=pretrained
         )
         self.model = model
