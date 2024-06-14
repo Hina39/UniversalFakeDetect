@@ -3,6 +3,7 @@ from .imagenet_models import ImagenetModel
 from .dinov2_models import DinoModel
 from .meru_models import MeruModel
 from .deit_models import DeitModel
+from .open_clip_models import OpenCLIPModel
 
 
 VALID_NAMES = [
@@ -32,6 +33,7 @@ VALID_NAMES = [
     "Meru:Vit-B",
     "Dino:Vit-B/14",
     "Deit:ViT-B/16",
+    "Open_CLIP:ViT-B/16",
 ]
 
 
@@ -47,5 +49,7 @@ def get_model(name):
         return MeruModel(name[5:])
     elif name.startswith("Deit:"):
         return DeitModel(name[5:])
+    elif name.startswith("Open_CLIP:"):
+        return OpenCLIPModel(name[10:])
     else:
         assert False
