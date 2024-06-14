@@ -16,7 +16,7 @@ class EnsembleModel(nn.Module):
             sum([model.fc.in_features for model in self.models]), num_classes
         )
 
-    def to(self, device):
+    def custom_to(self, device):
         # Override the to method to move all models to the target device
         self = super().to(device)
         self.models = [model.to(device) for model in self.models]
