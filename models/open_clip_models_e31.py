@@ -2,7 +2,7 @@ import torch.nn as nn
 import open_clip
 
 
-class OpenCLIPModel(nn.Module):
+class OpenCLIPE31Model(nn.Module):
     def __init__(
         self,
         name,
@@ -11,7 +11,7 @@ class OpenCLIPModel(nn.Module):
         pretrained="laion400m_e31",
         channels=512,
     ):
-        super(OpenCLIPModel, self).__init__()
+        super(OpenCLIPE31Model, self).__init__()
         model, _, _ = open_clip.create_model_and_transforms(
             model_name, pretrained=pretrained
         )
