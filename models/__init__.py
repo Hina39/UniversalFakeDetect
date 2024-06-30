@@ -3,7 +3,9 @@ from .imagenet_models import ImagenetModel
 from .dinov2_models import DinoModel
 from .meru_models import MeruModel
 from .deit_models import DeitModel
-from .open_clip_models import OpenCLIPModel
+from .open_clip_models_e32 import OpenCLIPE32Model
+from .open_clip_models_e31 import OpenCLIPE31Model
+from .synclr_models import SynCLRModel
 
 
 VALID_NAMES = [
@@ -34,6 +36,8 @@ VALID_NAMES = [
     "Dino:Vit-B/14",
     "Deit:ViT-B/16",
     "Open_CLIP:ViT-B/16",
+    "Open_CLIPE31:ViT-B/16",
+    "SynCLR:ViT-B/16",
 ]
 
 
@@ -50,6 +54,10 @@ def get_model(name):
     elif name.startswith("Deit:"):
         return DeitModel(name[5:])
     elif name.startswith("Open_CLIP:"):
-        return OpenCLIPModel(name[10:])
+        return OpenCLIPE32Model(name[10:])
+    elif name.startswith("Open_CLIPE31:"):
+        return OpenCLIPE31Model(name[13:])
+    elif name.startswith("SynCLR:"):
+        return SynCLRModel(name[7:])
     else:
         assert False
