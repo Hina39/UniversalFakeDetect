@@ -7,8 +7,7 @@ from collections import OrderedDict
 
 from timm.models.layers import trunc_normal_, lecun_normal_
 from timm.models.vision_transformer import Attention
-from timm.models.layers import Mlp, DropPath
-from timm.models.layers import to_2tuple
+from timm.models.layers import Mlp, DropPath, to_2tuple
 from timm.models.helpers import named_apply
 
 
