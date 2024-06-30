@@ -6,6 +6,7 @@ from .deit_models import DeitModel
 from .open_clip_models_e32 import OpenCLIPE32Model
 from .open_clip_models_e31 import OpenCLIPE31Model
 from .synclr_models import SynCLRModel
+from .stablerep_models import StableRepModel
 
 
 VALID_NAMES = [
@@ -38,6 +39,7 @@ VALID_NAMES = [
     "Open_CLIPE32:ViT-B/16",
     "Open_CLIPE31:ViT-B/16",
     "SynCLR:ViT-B/16",
+    "StableRep:ViT-B/16",
 ]
 
 
@@ -59,5 +61,7 @@ def get_model(name):
         return OpenCLIPE31Model(name[13:])
     elif name.startswith("SynCLR:"):
         return SynCLRModel(name[7:])
+    elif name.startswith("StableRep:"):
+        return StableRepModel(name[10:])
     else:
         assert False
