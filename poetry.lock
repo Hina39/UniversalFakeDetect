@@ -1297,6 +1297,38 @@ files = [
 ]
 
 [[package]]
+name = "imageio"
+version = "2.34.1"
+description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "imageio-2.34.1-py3-none-any.whl", hash = "sha256:408c1d4d62f72c9e8347e7d1ca9bc11d8673328af3913868db3b828e28b40a4c"},
+    {file = "imageio-2.34.1.tar.gz", hash = "sha256:f13eb76e4922f936ac4a7fec77ce8a783e63b93543d4ea3e40793a6cabd9ac7d"},
+]
+
+[package.dependencies]
+numpy = "*"
+pillow = ">=8.3.2"
+
+[package.extras]
+all-plugins = ["astropy", "av", "imageio-ffmpeg", "pillow-heif", "psutil", "tifffile"]
+all-plugins-pypy = ["av", "imageio-ffmpeg", "pillow-heif", "psutil", "tifffile"]
+build = ["wheel"]
+dev = ["black", "flake8", "fsspec[github]", "pytest", "pytest-cov"]
+docs = ["numpydoc", "pydata-sphinx-theme", "sphinx (<6)"]
+ffmpeg = ["imageio-ffmpeg", "psutil"]
+fits = ["astropy"]
+full = ["astropy", "av", "black", "flake8", "fsspec[github]", "gdal", "imageio-ffmpeg", "itk", "numpydoc", "pillow-heif", "psutil", "pydata-sphinx-theme", "pytest", "pytest-cov", "sphinx (<6)", "tifffile", "wheel"]
+gdal = ["gdal"]
+itk = ["itk"]
+linting = ["black", "flake8"]
+pillow-heif = ["pillow-heif"]
+pyav = ["av"]
+test = ["fsspec[github]", "pytest", "pytest-cov"]
+tifffile = ["tifffile"]
+
+[[package]]
 name = "importlib-metadata"
 version = "7.1.0"
 description = "Read metadata from Python packages"
@@ -2930,6 +2962,51 @@ files = [
 ]
 
 [[package]]
+name = "pywavelets"
+version = "1.6.0"
+description = "PyWavelets, wavelet transform module"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pywavelets-1.6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ddc1ff5ad706313d930f857f9656f565dfb81b85bbe58a9db16ad8fa7d1537c5"},
+    {file = "pywavelets-1.6.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:78feab4e0c25fa32034b6b64cb854c6ce15663b4f0ffb25d8f0ee58915300f9b"},
+    {file = "pywavelets-1.6.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:be36f08efe9bc3abf40cf40cd2ee0aa0db26e4894e13ce5ac178442864161e8c"},
+    {file = "pywavelets-1.6.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0595c51472c9c5724fe087cb73e2797053fd25c788d6553fdad6ff61abc60e91"},
+    {file = "pywavelets-1.6.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:058a750477dde633ac53b8806f835af3559d52db6532fb2b93c1f4b5441365b8"},
+    {file = "pywavelets-1.6.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:538795d9c4181152b414285b5a7f72ac52581ecdcdce74b6cca3fa0b8a5ab0aa"},
+    {file = "pywavelets-1.6.0-cp310-cp310-win32.whl", hash = "sha256:47de024ba4f9df97e98b5f540340e1a9edd82d2c477450bef8c9b5381487128e"},
+    {file = "pywavelets-1.6.0-cp310-cp310-win_amd64.whl", hash = "sha256:e2c44760c0906ddf2176920a2613287f6eea947f166ce7eee9546081b06a6835"},
+    {file = "pywavelets-1.6.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:d91aaaf6de53b758bcdc96c81cdb5a8607758602be49f691188c0e108cf1e738"},
+    {file = "pywavelets-1.6.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:3b5302edb6d1d1ff6636d37c9ff29c4892f2a3648d736cc1df01f3f36e25c8cf"},
+    {file = "pywavelets-1.6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c5e655446e37a3c87213d5c6386b86f65c4d61736b4432d720171e7dd6523d6a"},
+    {file = "pywavelets-1.6.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9ec7d69b746a0eaa327b829a3252a63619f2345e263177be5dd9bf30d7933c8d"},
+    {file = "pywavelets-1.6.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:97ea9613bd6b7108ebb44b709060adc7e2d5fac73be7152342bdd5513d75f84e"},
+    {file = "pywavelets-1.6.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:48b3813c6d1a7a8194f37dbb5dbbdf2fe1112152c91445ea2e54f64ff6350c36"},
+    {file = "pywavelets-1.6.0-cp311-cp311-win32.whl", hash = "sha256:4ffb484d096a5eb10af7121e0203546a03e1369328df321a33ef91f67bac40cf"},
+    {file = "pywavelets-1.6.0-cp311-cp311-win_amd64.whl", hash = "sha256:274bc47b289585383aa65519b3fcae5b4dee5e31db3d4198d4fad701a70e59f7"},
+    {file = "pywavelets-1.6.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:d6ec113386a432e04103f95e351d2657b42145bd1e1ed26513423391bcb5f011"},
+    {file = "pywavelets-1.6.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ab652112d3932d21f020e281e06926a751354c2b5629fb716f5eb9d0104b84e5"},
+    {file = "pywavelets-1.6.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:47b0314a22616c5f3f08760f0e00b4a15b7c7dadca5e39bb701cf7869a4207c5"},
+    {file = "pywavelets-1.6.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:138471513bc0a4cd2ddc4e50c7ec04e3468c268e101a0d02f698f6aedd1d5e79"},
+    {file = "pywavelets-1.6.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:67936491ae3e5f957c428e34fdaed21f131535b8d60c7c729a1b539ce8864837"},
+    {file = "pywavelets-1.6.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:dd798cee3d28fb3d32a26a00d9831a20bf316c36d685e4ced01b4e4a8f36f5ce"},
+    {file = "pywavelets-1.6.0-cp312-cp312-win32.whl", hash = "sha256:e772f7f0c16bfc3be8ac3cd10d29a9920bb7a39781358856223c491b899e6e79"},
+    {file = "pywavelets-1.6.0-cp312-cp312-win_amd64.whl", hash = "sha256:4ef15a63a72afa67ae9f4f3b06c95c5382730fb3075e668d49a880e65f2f089c"},
+    {file = "pywavelets-1.6.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:627df378e63e9c789b6f2e7060cb4264ebae6f6b0efc1da287a2c060de454a1f"},
+    {file = "pywavelets-1.6.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:a413b51dc19e05243fe0b0864a8e8a16b5ca9bf2e4713da00a95b1b5747a5367"},
+    {file = "pywavelets-1.6.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:be615c6c1873e189c265d4a76d1751ec49b17e29725e6dd2e9c74f1868f590b7"},
+    {file = "pywavelets-1.6.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4021ef69ec9f3862f66580fc4417be728bd78722914394594b48212fd1fcaf21"},
+    {file = "pywavelets-1.6.0-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:8fbf7b61b28b5457693c034e58a01622756d1fd60a80ae13ac5888b1d3e57e80"},
+    {file = "pywavelets-1.6.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:f58ddbb0a6cd243928876edfc463b990763a24fb94498607d6fea690e32cca4c"},
+    {file = "pywavelets-1.6.0-cp39-cp39-win32.whl", hash = "sha256:42a22e68e345b6de7d387ef752111ab4530c98048d2b4bdac8ceefb078b4ead6"},
+    {file = "pywavelets-1.6.0-cp39-cp39-win_amd64.whl", hash = "sha256:32198de321892743c1a3d1957fe1cd8a8ecc078bfbba6b8f3982518e897271d7"},
+    {file = "pywavelets-1.6.0.tar.gz", hash = "sha256:ea027c70977122c5fc27b2510f0a0d9528f9c3df6ea3e4c577ca55fd00325a5b"},
+]
+
+[package.dependencies]
+numpy = ">=1.22.4,<3"
+
+[[package]]
 name = "pyyaml"
 version = "6.0.1"
 description = "YAML parser and emitter for Python"
@@ -3493,6 +3570,50 @@ testing = ["h5py (>=3.7.0)", "huggingface-hub (>=0.12.1)", "hypothesis (>=6.70.2
 torch = ["safetensors[numpy]", "torch (>=1.10)"]
 
 [[package]]
+name = "scikit-image"
+version = "0.18.3"
+description = "Image processing in Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "scikit-image-0.18.3.tar.gz", hash = "sha256:ecae99f93f4c5e9b1bf34959f4dc596c41f2f6b2fc407d9d9ddf85aebd3137ca"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:7f27357adae9225df10fd152224d4c43978ae222f44bad7fedbfc2b81b985f9d"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0bf3cdadc15db90f875bf59bdd0db080337e6353bb3d165c281f9af456d9d3f2"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:2f24eb3df859ba5b3fb66947fe2d7240653b38f307d574e25f1ae29cc2a212ee"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e2148846fae22e12b7a20d11d951adae57213dd097af5960407eb5c4421c0ab3"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-win32.whl", hash = "sha256:142d070a41f9dfed0c3661e0dd9ce3cdb59a20a5b5ab071f529577d6d3e1fb81"},
+    {file = "scikit_image-0.18.3-cp37-cp37m-win_amd64.whl", hash = "sha256:05b430b1f8e25f7ba4a55afc6bf592af00f0ec809ab1d80bdede8893e7c6af57"},
+    {file = "scikit_image-0.18.3-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:ef92f42d8a0794c47df1eeb1937119b6686b523dc663ecc5ffdf3c91645719ac"},
+    {file = "scikit_image-0.18.3-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9b60fe0bc6e770c126c625f8c2d8af3b20fea53dac845abdf474bef1bd526490"},
+    {file = "scikit_image-0.18.3-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:088bf793696a3d5f56cce27c75d415fa795d1db9336b7e8257a1764dc03c7c52"},
+    {file = "scikit_image-0.18.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:7994866857a1bb388cf3ede4ca7a8fba0b89ef980d5d802ec25e30124a2a34db"},
+    {file = "scikit_image-0.18.3-cp38-cp38-win32.whl", hash = "sha256:b29982f07231f60d6170f4c2c6f2fe88051a7b4194d775aefd81bfee107452b9"},
+    {file = "scikit_image-0.18.3-cp38-cp38-win_amd64.whl", hash = "sha256:3f3aa984638a6868171d176d26d6bd17b7b16a9fd505eaa97482f00a4310e3ff"},
+    {file = "scikit_image-0.18.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f698fc715202eeccabb371190c19c2d6713696de4d07609a0fa0cae3acb0b3dd"},
+    {file = "scikit_image-0.18.3-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:0bf23d3d182ba8fe4ef8a0935e843be1f6c99e7eebeb492ac07c305e8cbb1dcd"},
+    {file = "scikit_image-0.18.3-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:bfa6eb04dc0b8773043f9994eccd8c517d713cd0f9e960dcb6754e19c1abceb1"},
+    {file = "scikit_image-0.18.3-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8394ad148685ed6ea8d84eb9c41e70cef1adda6c6d9a0ff8476c3126818a9340"},
+    {file = "scikit_image-0.18.3-cp39-cp39-win32.whl", hash = "sha256:ec242ff35bd4bc531aaf00c6edb9f0f64ff36ff353bd6ecd8f1c77886ddc0a7a"},
+    {file = "scikit_image-0.18.3-cp39-cp39-win_amd64.whl", hash = "sha256:3068af85682e90fda021070969dd2fce667f89a868c6aacb2fffbc5aa002e39e"},
+]
+
+[package.dependencies]
+imageio = ">=2.3.0"
+matplotlib = ">=2.0.0,<3.0.0 || >3.0.0"
+networkx = ">=2.0"
+numpy = ">=1.16.5"
+pillow = ">=4.3.0,<7.1.0 || >7.1.0,<7.1.1 || >7.1.1"
+PyWavelets = ">=1.1.1"
+scipy = ">=1.0.1"
+tifffile = ">=2019.7.26"
+
+[package.extras]
+data = ["pooch (>=1.3.0)"]
+docs = ["cloudpickle (>=0.2.1)", "dask[array] (>=0.15.0,!=2.17.0)", "ipywidgets", "matplotlib (>=3.0.1)", "myst-parser", "numpydoc (>=1.0)", "pandas (>=0.23.0)", "plotly (>=4.10.0)", "pooch (>=1.3.0)", "pytest-runner", "scikit-learn", "seaborn (>=0.7.1)", "sphinx (>=1.8,<=2.4.4)", "sphinx-copybutton", "sphinx-gallery (>=0.7.0,!=0.8.0)", "tifffile (>=2020.5.30)"]
+optional = ["SimpleITK", "astropy (>=3.1.2)", "cloudpickle (>=0.2.1)", "dask[array] (>=1.0.0,!=2.17.0)", "pooch (>=1.3.0)", "pyamg", "qtpy"]
+test = ["codecov", "flake8", "pooch (>=1.3.0)", "pytest (>=5.2.0)", "pytest-cov (>=2.7.0)", "pytest-faulthandler", "pytest-localserver"]
+
+[[package]]
 name = "scikit-learn"
 version = "1.4.2"
 description = "A set of python modules for machine learning and data mining"
@@ -3808,6 +3929,23 @@ files = [
     {file = "threadpoolctl-3.5.0-py3-none-any.whl", hash = "sha256:56c1e26c150397e58c4926da8eeee87533b1e32bef131bd4bf6a2f45f3185467"},
     {file = "threadpoolctl-3.5.0.tar.gz", hash = "sha256:082433502dd922bf738de0d8bcc4fdcbf0979ff44c42bd40f5af8a282f6fa107"},
 ]
+
+[[package]]
+name = "tifffile"
+version = "2024.5.22"
+description = "Read and write TIFF files"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "tifffile-2024.5.22-py3-none-any.whl", hash = "sha256:e281781c15d7d197d7e12749849c965651413aa905f97a48b0f84bd90a3b4c6f"},
+    {file = "tifffile-2024.5.22.tar.gz", hash = "sha256:3a105801d1b86d55692a98812a170c39d3f0447aeacb1d94635d38077cb328c4"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+all = ["defusedxml", "fsspec", "imagecodecs (>=2023.8.12)", "lxml", "matplotlib", "zarr"]
 
 [[package]]
 name = "timm"
@@ -4683,4 +4821,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.13"
-content-hash = "b71c960ce42bbc862eed053600bd8c634268d3e1c9a1f7092ca813e21540ca24"
+content-hash = "8e77e777cc4298e8ce4fc5c69f61e1801a95092934efe1f4654313450a2b8784"
