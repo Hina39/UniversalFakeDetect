@@ -19,3 +19,6 @@ class CLIPModel(nn.Module):
         if return_feature:
             return features
         return self.fc(features)
+
+    def get_attention_weights_dict(self, x) -> dict:
+        return self.model.get_attention_dict(x)

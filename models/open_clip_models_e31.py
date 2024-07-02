@@ -1,5 +1,5 @@
 import torch.nn as nn
-import open_clip
+from submodules.open_clip_attention_visualization.src import open_clip
 
 
 class OpenCLIPE31Model(nn.Module):
@@ -23,3 +23,6 @@ class OpenCLIPE31Model(nn.Module):
         if return_feature:
             return features
         return self.fc(features)
+
+    def get_attention_weights_dict(self, x):
+        return self.model.get_attention_weights_dict(x)
