@@ -198,7 +198,7 @@ class QuickGELU(nn.Module):
 class ResidualAttentionBlock(nn.Module):
     def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None):
         super().__init__()
-
+        # くそでかFC層
         self.attn = nn.MultiheadAttention(d_model, n_head)
         self.ln_1 = LayerNorm(d_model)
         self.mlp = nn.Sequential(
@@ -219,12 +219,35 @@ class ResidualAttentionBlock(nn.Module):
             if self.attn_mask is not None
             else None
         )
+        # self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)　は
         return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
+
+    def attention_all(self, x: torch.Tensor):
+        self.attn_mask = (
+            self.attn_mask.to(dtype=x.dtype, device=x.device)
+            if self.attn_mask is not None
+            else None
+        )
+        # https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
+        return self.attn(
+            x,
+            x,
+            x,
+            need_weights=True,
+            average_attn_weights=True,
+            attn_mask=self.attn_mask,
+        )
 
     def forward(self, x: torch.Tensor):
         x = x + self.attention(self.ln_1(x))
         x = x + self.mlp(self.ln_2(x))
         return x
+
+    def forward_all(self, x: torch.Tensor):
+        attn_output, attn_output_weights = self.attention_all(self.ln_1(x))
+        x = x + attn_output
+        x = x + self.mlp(self.ln_2(x))
+        return x, attn_output_weights
 
 
 class Transformer(nn.Module):
@@ -246,6 +269,18 @@ class Transformer(nn.Module):
         return out, x
 
         # return self.resblocks(x)  # This is the original code
+
+    def get_all_layers_attention_weights(self, x: torch.Tensor) -> dict:
+        """
+        辞書型で全てのレイヤーのアテンションweightを返すように変更
+        """
+        out = {}
+        for idx, layer in enumerate(self.resblocks.children()):
+            # 今欲しいのは各層のattn_output_weights。それにはforward_allの計算が必要。それにはxが必要。
+            # xはひとつ前の層の出力。最初はxは入力。
+            x, attn_output_weights = layer.forward_all(x)
+            out["layer" + str(idx)] = attn_output_weights
+        return out
 
 
 class VisionTransformer(nn.Module):
@@ -315,6 +350,26 @@ class VisionTransformer(nn.Module):
 
         # This only returns CLIP features
         return x
+
+    def get_all_layers_attention_weights(self, x: torch.Tensor) -> dict:
+        x = self.conv1(x)  # shape = [*, width, grid, grid]
+        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = torch.cat(
+            [
+                self.class_embedding.to(x.dtype)
+                + torch.zeros(
+                    x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device
+                ),
+                x,
+            ],
+            dim=1,
+        )  # shape = [*, grid ** 2 + 1, width]
+        x = x + self.positional_embedding.to(x.dtype)
+        x = self.ln_pre(x)
+
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        return self.transformer.get_all_layers_attention_weights(x)
 
 
 class CLIP(nn.Module):
@@ -426,6 +481,9 @@ class CLIP(nn.Module):
 
     def encode_image(self, image):
         return self.visual(image.type(self.dtype))
+
+    def get_attention_dict(self, image) -> dict:
+        return self.visual.get_all_layers_attention_weights(image.type(self.dtype))
 
     def encode_text(self, text):
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
