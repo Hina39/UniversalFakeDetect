@@ -24,9 +24,12 @@ def get_attention_map(img, model, transform, get_mask=False):
     x = transform(img)
     print(x.unsqueeze(0).size())
 
-    att_mat_dict = model.get_attention_mat_dict(x.unsqueeze(0))
+    att_mat_dict = model.get_attention_weights_dict(x.unsqueeze(0))
     result_list = []
     for att_mat in att_mat_dict.values():
+        if att_mat.size(1) == 1:
+            continue
+
         # To account for residual connections, we add an identity matrix to the
         # attention matrix and re-normalize the weights.
         residual_att = torch.eye(att_mat.size(1))
@@ -172,7 +175,7 @@ if __name__ == "__main__":
     )
 
     # Load the model
-    model = get_model(opt.arch)
+    model = get_model(opt.arch).eval()
 
     img_path = "datasets/test/progan/bird/0_real/06154.png"
 
