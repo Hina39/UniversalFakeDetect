@@ -1,0 +1,3 @@
+[submodule "submodules/open_clip_attention_visualization"]
+	path = submodules/open_clip_attention_visualization
+	url = https://github.com/YoshikiKubotani/open_clip_attention_visualization.git
