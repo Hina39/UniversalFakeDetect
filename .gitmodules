@@ -1,3 +1,6 @@
 [submodule "submodules/open_clip_attention_visualization"]
 	path = submodules/open_clip_attention_visualization
 	url = https://github.com/YoshikiKubotani/open_clip_attention_visualization.git
+[submodule "submodules/dinov2_attention_visualization"]
+	path = submodules/dinov2_attention_visualization
+	url = https://github.com/YoshikiKubotani/dinov2_attention_visualization.git
