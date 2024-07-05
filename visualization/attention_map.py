@@ -11,6 +11,7 @@ import torchvision.transforms.functional as TF
 
 import cv2
 from PIL import Image
+from pathlib import Path
 
 # from torchvision import transforms
 from models import get_model
@@ -32,7 +33,13 @@ def get_attention_map(img, model, transform, get_mask=False):
 
         # To account for residual connections, we add an identity matrix to the
         # attention matrix and re-normalize the weights.
+        print("att_mat shape:", att_mat.shape)
+        # att_mat shape: torch.Size([1, 197, 197])
+
         residual_att = torch.eye(att_mat.size(1))
+        print("residual_att shape:", residual_att.shape)
+        # residual_att shape: torch.Size([197, 197])
+
         aug_att_mat = att_mat + residual_att
         aug_att_mat = aug_att_mat / aug_att_mat.sum(dim=-1).unsqueeze(-1)
 
@@ -44,8 +51,13 @@ def get_attention_map(img, model, transform, get_mask=False):
             joint_attentions[n] = torch.matmul(aug_att_mat[n], joint_attentions[n - 1])
 
         v = joint_attentions[-1]
+        # v:torch.Size([197, 197])
+
         grid_size = int(np.sqrt(aug_att_mat.size(-1)))
         mask = v[0, 1:].reshape(grid_size, grid_size).detach().numpy()
+        # grid_size:14
+        # mask shape:(14, 14)
+
         if get_mask:
             result = cv2.resize(mask / mask.max(), img.size)
         else:
@@ -149,8 +161,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--arch", type=str, default="CLIP:ViT-B/16")
-    # parser.add_argument("--arch", nargs="+", help="see my_models/__init__.py")
+    parser.add_argument("--arch", type=str, default="Open_CLIPE32:ViT-B/16")
     opt = parser.parse_args()
 
     opt.cropSize = 224
@@ -180,8 +191,8 @@ if __name__ == "__main__":
     img_path = "datasets/test/progan/bird/0_real/06154.png"
 
     img = Image.open(img_path)
-    result_list = get_attention_map(img, model, transform, get_mask=False)
+    result_list = get_attention_map(img, model, transform, get_mask=True)
+    output_dir = Path(f"outputs/attention_map/{opt.arch}")
+    output_dir.mkdir(parents=True, exist_ok=True)
     for index, result in enumerate(result_list):
-        save_attention_map(
-            np.array(img), result, save_path=f"outputs/attention_map/{index}.png"
-        )
+        save_attention_map(np.array(img), result, save_path=f"{output_dir}/{index}.png")
