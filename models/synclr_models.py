@@ -23,3 +23,16 @@ class SynCLRModel(nn.Module):
         if return_feature:
             return features
         return self.fc(features)
+
+    def get_attention_weights_dict(self, x):
+        return self.model.get_all_layers_attention_weights(x)
+
+
+if __name__ == "__main__":
+
+    model = SynCLRModel(name="a").cuda().eval()
+    attention_weights = model.get_attention_weights_dict(
+        torch.rand(1, 3, 224, 224).cuda()
+    )
+    for layer, weights in attention_weights.items():
+        print(f"{layer}: {weights.shape}")

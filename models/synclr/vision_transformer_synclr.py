@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 from timm.models.layers import trunc_normal_, lecun_normal_
-from timm.models.vision_transformer import Attention
+from models.synclr.attention import Attention
 from timm.models.layers import Mlp, DropPath, to_2tuple
 from timm.models.helpers import named_apply
 
@@ -29,6 +29,7 @@ class Block(nn.Module):
     ):
         super().__init__()
         self.norm1 = norm_layer(dim)
+        # L58 : https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py
         self.attn = Attention(
             dim,
             num_heads=num_heads,
@@ -55,7 +56,7 @@ class Block(nn.Module):
         if isinstance(x, tuple):
             x = x[0]
 
-        x = x + self.drop_path(self.attn(self.norm1(x)))
+        x = x + self.drop_path(self.attn(self.norm1(x))[0])
         ffn_out = self.mlp(self.norm2(x))
         x = x + self.drop_path(ffn_out)
 
@@ -64,6 +65,15 @@ class Block(nn.Module):
         if self.return_layer_targets:
             return x, target
         return x
+
+    def forward_all(self, x: torch.Tensor):
+        if isinstance(x, tuple):
+            x = x[0]
+        attn_output, attn_weights = self.attn(self.norm1(x))
+        x = x + self.drop_path(attn_output)
+        ffn_out = self.mlp(self.norm2(x))
+        x = x + self.drop_path(ffn_out)
+        return x, attn_weights
 
 
 class PatchEmbed(nn.Module):
@@ -316,6 +326,33 @@ class VisionTransformer(nn.Module):
         else:
             x = self.head(x)
         return x
+
+    def forward_all(self, x: torch.Tensor):
+        x = self.patch_embed(x)
+        cls_token = self.cls_token.expand(x.shape[0], -1, -1)
+        if self.dist_token is None:
+            x = torch.cat((cls_token, x), dim=1)
+        else:
+            x = torch.cat(
+                (cls_token, self.dist_token.expand(x.shape[0], -1, -1), x), dim=1
+            )
+        x = self.pos_drop(x + self.pos_embed)
+        # この上まで、forward_featuresと同じ
+
+        attention_weights = {}
+        for idx, block in enumerate(self.blocks):
+            x, attn_weights = block.forward_all(x)
+            attention_weights["layer" + str(idx)] = torch.mean(attn_weights, dim=1)
+
+        x = self.norm(x)
+        if self.dist_token is None:
+            return self.pre_logits(x[:, 0]), attention_weights
+        else:
+            return (x[:, 0], x[:, 1]), attention_weights
+
+    def get_all_layers_attention_weights(self, x: torch.Tensor) -> dict:
+        _, attention_weights = self.forward_all(x)
+        return attention_weights
 
 
 def _init_vit_weights(
