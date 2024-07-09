@@ -21,61 +21,60 @@ MEAN = {"imagenet": [0.485, 0.456, 0.406], "clip": [0.48145466, 0.4578275, 0.408
 STD = {"imagenet": [0.229, 0.224, 0.225], "clip": [0.26862954, 0.26130258, 0.27577711]}
 
 
-def get_attention_map(img, model, transform, get_mask=False):
+def get_attention_map(img, model, transform, save_path, get_mask):
     x = transform(img)
     print(x.unsqueeze(0).size())
 
     att_mat_dict = model.get_attention_weights_dict(x.unsqueeze(0))
-    result_list = []
+
+    # att_mat_dictをlistにする
+    att_mat_list = []
     for att_mat in att_mat_dict.values():
         if att_mat.size(1) == 1:
+            print("Skipping attention map with only one channel")
             continue
+        att_mat_list.append(att_mat)
 
-        # To account for residual connections, we add an identity matrix to the
-        # attention matrix and re-normalize the weights.
-        print("att_mat shape:", att_mat.shape)
-        # att_mat shape: torch.Size([1, 197, 197])
+    att_mat_list = torch.stack(att_mat_list).squeeze(1)
 
-        residual_att = torch.eye(att_mat.size(1))
-        print("residual_att shape:", residual_att.shape)
-        # residual_att shape: torch.Size([197, 197])
+    residual_att = torch.eye(att_mat_list.size(1))
 
-        aug_att_mat = att_mat + residual_att
-        aug_att_mat = aug_att_mat / aug_att_mat.sum(dim=-1).unsqueeze(-1)
+    aug_att_mat = att_mat_list + residual_att
+    aug_att_mat = aug_att_mat / aug_att_mat.sum(dim=-1).unsqueeze(-1)
 
-        # Recursively multiply the weight matrices
-        joint_attentions = torch.zeros(aug_att_mat.size())
-        joint_attentions[0] = aug_att_mat[0]
+    # Recursively multiply the weight matrices
+    joint_attentions = torch.zeros(aug_att_mat.size())
+    joint_attentions[0] = aug_att_mat[0]
 
-        for n in range(1, aug_att_mat.size(0)):
-            joint_attentions[n] = torch.matmul(aug_att_mat[n], joint_attentions[n - 1])
+    for n in range(1, aug_att_mat.size(0)):
+        joint_attentions[n] = torch.matmul(aug_att_mat[n], joint_attentions[n - 1])
 
-        v = joint_attentions[-1]
-        # v:torch.Size([197, 197])
+    grid_size = int(np.sqrt(aug_att_mat.size(-1)))
 
-        grid_size = int(np.sqrt(aug_att_mat.size(-1)))
+    print(joint_attentions.shape)
+    for i, v in enumerate(joint_attentions):
         mask = v[0, 1:].reshape(grid_size, grid_size).detach().numpy()
-        # grid_size:14
-        # mask shape:(14, 14)
 
         if get_mask:
             result = cv2.resize(mask / mask.max(), img.size)
         else:
             mask = cv2.resize(mask / mask.max(), img.size)[..., np.newaxis]
             result = (mask * img).astype("uint8")
-        result_list.append(result)
-    return result_list
 
-
-def save_attention_map(original_img, att_map, save_path):
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(16, 16))
-    ax1.set_title("Original")
-    ax1.imshow(original_img)
-    ax2.set_title("Attention Map Last Layer")
-    ax2.imshow(att_map)
-
-    # Save the original image
-    fig.savefig(save_path)
+        if opt.compare:
+            fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(16, 16))
+            ax1.set_title("Original")
+            ax2.set_title("Attention Map_%d Layer" % (i + 1))
+            _ = ax1.imshow(img)
+            _ = ax2.imshow(result)
+            # Save the original image
+            fig.savefig(f"{save_path}_{i}.png")
+        else:
+            plt.figure(figsize=(8, 8))
+            plt.imshow(result)
+            plt.axis("off")  # Hide the axis
+            # fig.savefig(f"{save_path}_{i}.png")
+            plt.savefig(f"{save_path}_{i}.png", bbox_inches="tight", pad_inches=0)
 
 
 def data_augment(img, opt):
@@ -162,6 +161,10 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--arch", type=str, default="Open_CLIPE32:ViT-B/16")
+    parser.add_argument("--compare", action="store_true", default=False)
+    parser.add_argument(
+        "--img_path", type=str, default="datasets/test/progan/bird/0_real/06154.png"
+    )
     opt = parser.parse_args()
 
     opt.cropSize = 224
@@ -185,14 +188,10 @@ if __name__ == "__main__":
         ]
     )
 
-    # Load the model
     model = get_model(opt.arch).eval()
-
-    img_path = "datasets/test/progan/bird/0_real/06154.png"
-
-    img = Image.open(img_path)
-    result_list = get_attention_map(img, model, transform, get_mask=True)
-    output_dir = Path(f"outputs/attention_map/{opt.arch}")
+    img = Image.open(opt.img_path)
+    output_dir = Path(f"outputs/attention_map/{opt.arch}/")
     output_dir.mkdir(parents=True, exist_ok=True)
-    for index, result in enumerate(result_list):
-        save_attention_map(np.array(img), result, save_path=f"{output_dir}/{index}.png")
+    result_list = get_attention_map(
+        img, model, transform, save_path=f"{output_dir}/attn", get_mask=True
+    )
