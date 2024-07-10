@@ -4,7 +4,7 @@ import torch
 import torchvision.transforms as transforms
 import torch.utils.data
 import numpy as np
-from sklearn.metrics import average_precision_score, accuracy_score
+from sklearn.metrics import average_precision_score, accuracy_score, confusion_matrix
 from torch.utils.data import Dataset
 from models import get_model
 from PIL import Image
@@ -15,6 +15,7 @@ from dataset_paths import DATASET_PATHS
 import random
 import shutil
 from scipy.ndimage.filters import gaussian_filter
+from models.ensemble_models import EnsembleModel
 
 SEED = 0
 
@@ -85,14 +86,25 @@ def calculate_acc(y_true, y_pred, thres):
     return r_acc, f_acc, acc
 
 
+def conf_matrix(y_true, y_pred):
+    # Assuming y_pred contains continuous prediction outputs
+    threshold = 0.5  # This is an example; adjust based on your application
+    y_pred_binary = (y_pred > threshold).astype(int)
+
+    # Now y_pred_binary contains binary predictions, you can use it with y_true to compute the confusion matrix
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred_binary).ravel()
+    # conf = confusion_matrix(y_true, y_pred)
+    return tn, fp, fn, tp
+
+
 def validate(model, loader, find_thres=False):
 
     with torch.no_grad():
         y_true, y_pred = [], []
         print("Length of dataset: %d" % (len(loader)))
+        device = torch.device("cuda:0")
         for img, label in loader:
-            in_tens = img.cuda()
-
+            in_tens = img.to(device)
             y_pred.extend(model(in_tens).sigmoid().flatten().tolist())
             y_true.extend(label.flatten().tolist())
 
@@ -116,7 +128,9 @@ def validate(model, loader, find_thres=False):
     best_thres = find_best_threshold(y_true, y_pred)
     r_acc1, f_acc1, acc1 = calculate_acc(y_true, y_pred, best_thres)
 
-    return ap, r_acc0, f_acc0, acc0, r_acc1, f_acc1, acc1, best_thres
+    tn, fp, fn, tp = conf_matrix(y_true, y_pred)
+
+    return ap, r_acc0, f_acc0, acc0, r_acc1, f_acc1, acc1, best_thres, tn, fp, fn, tp
 
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = #
@@ -183,6 +197,11 @@ class RealFakeDataset(Dataset):
             self.labels_dict[i] = 1
 
         stat_from = "imagenet" if arch.lower().startswith("imagenet") else "clip"
+        # stat_from = (
+        #     "imagenet"
+        #     if any(arch.lower().startswith("imagenet") for arch in opt.arch)
+        #     else "clip"
+        # )
         self.transform = transforms.Compose(
             [
                 transforms.CenterCrop(224),
@@ -242,13 +261,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--real_path",
         type=str,
-        default="datasets/test/biggan",
+        default="",
         help="dir name or a pickle",
     )
     parser.add_argument(
         "--fake_path",
         type=str,
-        default="datasets/test/biggan",
+        default="",
         help="dir name or a pickle",
     )
     parser.add_argument(
@@ -262,12 +281,13 @@ if __name__ == "__main__":
         help="only check this number of images for both fake/real",
     )
 
-    parser.add_argument("--arch", type=str, default="CLIP:ViT-L/14")
+    parser.add_argument("--arch", type=str, default="SynCLR:ViT-B/16")
+    # parser.add_argument("--arch", nargs="+", help="see my_models/__init__.py")
     parser.add_argument(
-        "--ckpt", type=str, default="./pretrained_weights/fc_weights.pth"
+        "--ckpt", type=str, default="checkpoints/SynCLRModel/model_epoch_best.pth"
     )
-
-    parser.add_argument("--result_folder", type=str, default="result", help="")
+    parser.add_argument("--ensemble", action="store_true")
+    parser.add_argument("--result_folder", type=str, default="result_synclr", help="")
     parser.add_argument("--batch_size", type=int, default=128)
 
     parser.add_argument(
@@ -289,24 +309,44 @@ if __name__ == "__main__":
         shutil.rmtree(opt.result_folder)
     os.makedirs(opt.result_folder)
 
-    model = get_model(opt.arch)
-    state_dict = torch.load(opt.ckpt, map_location="cpu")
-    if opt.arch == "Meru:Vit-B":
+    if opt.ensemble:
+        print("Ensemble model")
+        models = [get_model(arch) for arch in opt.arch]
+        # get_model(arch)でかえってくるのはCLIPModelなどのクラス。
+        model = EnsembleModel(models)
+        state_dict = torch.load(opt.ckpt, map_location="cpu")
         model.load_state_dict(state_dict["model"])
-    elif opt.arch == "Dino:Vit-B/14":
-        model.load_state_dict(state_dict["model"])
-    elif opt.arch == "CLIP:ViT-L/14":
-        # 論文の学習済みの重みを使用する場合
-        # model.fc.load_state_dict(state_dict)
-        model.load_state_dict(state_dict["model"])
-    elif opt.arch == "Deit:ViT-B/16":
-        model.load_state_dict(state_dict["model"])
-    else:
-        raise ValueError()
+        print("Model loaded..")
+        model.eval()
+        device = torch.device("cuda:0")
+        model.custom_to(device)
 
-    print("Model loaded..")
-    model.eval()
-    model.cuda()
+    else:
+        model = get_model(opt.arch)
+        state_dict = torch.load(opt.ckpt, map_location="cpu")
+        supported_archs = [
+            "Meru:Vit-B",
+            "Dino:Vit-B/14",
+            "CLIP:ViT-L/14",
+            "Deit:ViT-B/16",
+            "CLIP:ViT-B/16",
+            "Open_CLIPE32:ViT-B/16",
+            "SynCLR:ViT-B/16",
+            "StableRep:ViT-B/16",
+        ]
+        if opt.arch in supported_archs:
+            model.load_state_dict(state_dict["model"])
+            # 論文の学習済みの重みを使用する場合
+            # model.fc.load_state_dict(state_dict)
+        else:
+            raise ValueError()
+
+        print("Model loaded..")
+        model.eval()
+        # model.cuda()
+        device = torch.device("cuda:0")
+        torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
 
     if (opt.real_path is None) or (opt.fake_path is None) or (opt.data_mode is None):
         dataset_paths = DATASET_PATHS
@@ -336,17 +376,24 @@ if __name__ == "__main__":
         loader = torch.utils.data.DataLoader(
             dataset, batch_size=opt.batch_size, shuffle=False, num_workers=4
         )
-        ap, r_acc0, f_acc0, acc0, r_acc1, f_acc1, acc1, best_thres = validate(
-            model, loader, find_thres=True
+        ap, r_acc0, f_acc0, acc0, r_acc1, f_acc1, acc1, best_thres, tn, fp, fn, tp = (
+            validate(model, loader, find_thres=True)
         )
 
+        print(tn, fp, fn, tp)
         with open(os.path.join(opt.result_folder, "ap.txt"), "a") as f:
             f.write(dataset_path["key"] + ": " + str(round(ap * 100, 2)) + "\n")
+
+        with open(os.path.join(opt.result_folder, "confusion_matrix.txt"), "a") as f:
+            f.write(
+                dataset_path["key"] + "/" + f"tn:{tn}, fp:{fp}, fn:{fn}, tp:{tp}" + "\n"
+            )
 
         with open(os.path.join(opt.result_folder, "acc0.txt"), "a") as f:
             f.write(
                 dataset_path["key"]
                 + ": "
+                + "\n"
                 + "r_acc0:"
                 + str(round(r_acc0 * 100, 2))
                 + "  "
@@ -366,4 +413,5 @@ if __name__ == "__main__":
                 + str(round(acc1 * 100, 2))
                 + "\n"
                 + str(best_thres)
+                + "\n"
             )
